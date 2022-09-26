@@ -15,7 +15,6 @@ class NeuroRaccon extends RaccoonElement {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                height: 100%;
                 box-sizing: border-box;
                 -webkit-touch-callout: none;
                 -webkit-user-select: none;
@@ -24,7 +23,6 @@ class NeuroRaccon extends RaccoonElement {
                 user-select: none;
             }
 			#snappy{
-                margin-top: 20px;
                 background-color: deepskyblue;
                 position: relative;
                 display: block;
@@ -57,12 +55,18 @@ class NeuroRaccon extends RaccoonElement {
         if (e.has('row') || e.has('column')) this.init();
     }
     init() {
-        const s = Snap(this.$('#snappy')),
+        const s = Snap(this.shadowRoot.getElementById("snappy")),
             vbW = 1200,
             vbH = 700,
             sun = s.circle(60, 600, 300),
             road1 = s.rect(-4, 580, vbW + 10, 130),
             road2 = s.rect(-4, 580, vbW + 10, 10);
+        // const s = Snap(this.$('#snappy')),
+        //     vbW = 1200,
+        //     vbH = 700,
+        //     sun = s.circle(60, 600, 300),
+        //     road1 = s.rect(-4, 580, vbW + 10, 130),
+        //     road2 = s.rect(-4, 580, vbW + 10, 10);
         road2.attr({ fill: "grey" });
         sun.attr({ fill: "khaki", stroke: "goldenrod", strokeWidth: 40 });
         const night = s.rect(-4, -600, vbW + 10, 600);

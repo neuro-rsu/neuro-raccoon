@@ -1,7 +1,5 @@
-html,
 body {
-    scrollbar-width: none;
     margin: 0;
-    padding: 0;
     background-color: black;
+    overflow: hidden;
 }
