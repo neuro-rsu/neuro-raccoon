@@ -104,6 +104,7 @@ class NeuroRaccon extends RaccoonElement {
         //const blob = new Blob([mystring], { type: 'text/plain' });
         //const objectURL = URL.createObjectURL(blob);
         //Snap.load(objectURL, onSVGLoaded);
+        const raccoons = Array(settings.populationCount);
         Snap.load("images/crazi-raccoon.svg", onSVGLoaded);
 
         function onSVGLoaded(data) {
@@ -119,7 +120,6 @@ class NeuroRaccon extends RaccoonElement {
             s.append(cactus);
 			s.append(fish);
 
-            const raccoons = Array(settings.populationCount);
             for (let index = 0; index < raccoons.length; index++) {
                 raccoons[index] = raccoon.clone();
                 raccoons[index].brain = bestRaccoonBrain.clone();
@@ -127,7 +127,6 @@ class NeuroRaccon extends RaccoonElement {
                 s.append( raccoons[index] );
                 raccoons[index].transform('t100,136');
             }
-
             //s.append(clouds);
             s.append(mountains);
             s.append(mountainRange);
@@ -153,31 +152,30 @@ class NeuroRaccon extends RaccoonElement {
             let value = 0;
             let _value = 0;
             let _int = setInterval(() => {
-                mat1 = raccoon.getBBox();
                 mat2 = fish.getBBox();
-                let intersect = Snap.path.isBBoxIntersect(mat1, mat2)
-                if (intersect) {
-                    if (value > _value) {
-                        _value = value;
-                        text2.attr({ text: _value, });
-                    }
-                    value = 0;
-                    raccoon.attr({ visibility: "hidden" });
-                    raccoon.brain.cost += 1;
-                    text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
-                    clouds.attr({ fill: "red" });
-                } else {
-                    value += 1;
-                    clouds.attr({ fill: "white" });
-                    text.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
-
-                    raccoons.forEach(raccoon => {
-                        if (randomInteger(0, 2) < 1 ) {
-                            if (raccoon.inAnim().length == 0) raccoonJump(raccoon);
-                            else console.log(raccoon.inAnim());
+                raccoons.forEach(raccoon => {
+                    mat1 = raccoon.getBBox();
+                    let intersect = Snap.path.isBBoxIntersect(mat1, mat2);
+                    if (intersect) {
+                        if (value > _value) {
+                            _value = value;
+                            text2.attr({ text: _value, });
                         }
-                    });
-                }
+                        value = 0;
+                        raccoon.attr({ visibility: "hidden" });
+                        raccoon.brain.cost += 1;
+                        text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
+                        clouds.attr({ fill: "red" });
+                    } else {
+                        value += 1;
+                        clouds.attr({ fill: "white" });
+                        text.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
+                        if (randomInteger(0, 2) < 1 ) {
+                            if (raccoon.inAnim().length == 0 && raccoon.attr('visibility') !== "hidden")
+                                raccoonJump(raccoon);
+                        }
+                    }
+                })
             }, 100)
             document.addEventListener('keyup', mouseDownTruck);
         }
@@ -193,13 +191,24 @@ class NeuroRaccon extends RaccoonElement {
         function randomInteger(min, max) {
             return Math.floor(min + Math.random() * (max + 1 - min));
         }
+        function newPopulation() {
+
+            raccoons.forEach(raccoon => {
+                raccoon.attr({ visibility: "visible"});
+            });
+
+        }
         function animatetTruck1() { truck.animate({ transform: 't120,10' }, 6000, mina.easeinout, animatetTruck2) }
         function animatetTruck2() { truck.animate({ transform: 't-10,0' }, 6000, mina.easeinout, animatetTruck1) }
         function animateCactus() { cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus2) }
         function animateCactus2() { cactus.transform('t-1200'); cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus) }
         function animateFish() { fish.animate({ transform: 't1400 s0.3' }, 5000, mina.linear, animateFish2) }
         // function animateFish2() { fish.transform('t-500 s0.3'); fish.animate({ transform: 't500'}, 3000, mina.linear, animateFish) }
-        function animateFish2() { fish.transform('t-600 s0.3'); fish.animate({ transform: 't1400 s0.3'}, 5000, mina.linear, animateFish2) }
+        function animateFish2() {
+            fish.transform('t-600 s0.3');
+            fish.animate({ transform: 't1400 s0.3'}, 5000, mina.linear, animateFish2);
+            newPopulation();
+         }
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
         function animateMountains2() { mountains.transform('t0'); animateMountains() }
         function animateMountainRange() { mountainRange.animate({ transform: 't1200' }, 4000, '', animateMountainRange2) }
