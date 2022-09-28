@@ -1,4 +1,19 @@
 import { RaccoonElement, html, css } from './lit-raccoon.js';
+import {settings, loadSettings} from './settings.js';
+
+import {bestRaccoonBrain, changeBestRaccoonBrain, createBestRaccoonBrain} from './raccoon-brain.js'
+import { NeuralNetwork } from './neuro-net.js';
+
+// for (const dino of dinos) {
+//     if ( dino.check(cactus, cactusCoords) ) {
+//         dino.dinoBrain.cost = +document.getElementById('score').textContent;
+//         await changeBestDinoBrain(dino.dinoBrain);
+//         dino.remove();
+//     }
+//     else {
+//         dino.jump(cactus, cactusCoords);
+//     }
+// }
 
 class NeuroRaccon extends RaccoonElement {
 
@@ -56,12 +71,22 @@ class NeuroRaccon extends RaccoonElement {
         if (e.has('row') || e.has('column')) this.init();
     }
 
+    createPopulation(raccoons) {
+        for (let index = 0; index < raccoons.length; index++) {
+            raccoons[index] = bestRaccoonBrain.clone();
+            raccoons[index].cost = 0;
+        }
+    }
+
     async init() {
-		await fetch("images/crazi-raccoon.svg")
-		.then(response => response.text())
-		.then(svg => {
-			data.svg = svg;
-		});
+        await loadSettings();
+        await createBestRaccoonBrain();
+
+		// await fetch("images/crazi-raccoon.svg")
+		// .then(response => response.text())
+		// .then(svg => {
+		// 	data.svg = svg;
+		// });
         const s = Snap(this.shadowRoot.getElementById("snappy")),
             vbW = 1200,
             vbH = 700,
@@ -89,19 +114,29 @@ class NeuroRaccon extends RaccoonElement {
             mountainRange = data.select("#mrGroup");
             clouds = data.select("#clGroup");
             raccoon = data.select("#rGroup");
-			fish = data.select("#fGroup");
+            fish = data.select("#fGroup");
             s.append(clouds);
+            s.append(cactus);
+			s.append(fish);
+
+            const raccoons = Array(settings.populationCount);
+            for (let index = 0; index < raccoons.length; index++) {
+                raccoons[index] = raccoon.clone();
+                raccoons[index].brain = bestRaccoonBrain.clone();
+                raccoons[index].brain.cost = 0;
+                s.append( raccoons[index] );
+                raccoons[index].transform('t100,136');
+            }
+
+            //s.append(clouds);
             s.append(mountains);
             s.append(mountainRange);
-            s.append(cactus);
-            s.append(raccoon);
             s.append(truck);
-			s.append(fish);
             lights.attr({ visibility: "hidden" });
             //let t = new Snap.Matrix();
             //t.translate(-1200, 0);
             truck.transform('t60');
-            raccoon.transform('t100,136');
+            //raccoon.transform('t100,136');
             //cactus.transform(t);
             cactus.transform('t-1200');
 			fish.transform('t-600 s0.3');
@@ -127,12 +162,21 @@ class NeuroRaccon extends RaccoonElement {
                         text2.attr({ text: _value, });
                     }
                     value = 0;
+                    raccoon.attr({ visibility: "hidden" });
+                    raccoon.brain.cost += 1;
                     text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
                     clouds.attr({ fill: "red" });
                 } else {
                     value += 1;
                     clouds.attr({ fill: "white" });
                     text.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
+
+                    raccoons.forEach(raccoon => {
+                        if (randomInteger(0, 2) < 1 ) {
+                            if (raccoon.inAnim().length == 0) raccoonJump(raccoon);
+                            else console.log(raccoon.inAnim());
+                        }
+                    });
                 }
             }, 100)
             document.addEventListener('keyup', mouseDownTruck);
@@ -144,6 +188,10 @@ class NeuroRaccon extends RaccoonElement {
             animateMountains();
             animateMountainRange();
             animateClouds();
+        }
+        // Генерация случайного число в диапазоне от min до max включительно
+        function randomInteger(min, max) {
+            return Math.floor(min + Math.random() * (max + 1 - min));
         }
         function animatetTruck1() { truck.animate({ transform: 't120,10' }, 6000, mina.easeinout, animatetTruck2) }
         function animatetTruck2() { truck.animate({ transform: 't-10,0' }, 6000, mina.easeinout, animatetTruck1) }
@@ -181,6 +229,12 @@ class NeuroRaccon extends RaccoonElement {
             clouds.attr({ "fill-opacity": 1 });
             lights.attr({ visibility: "hidden" });
         }
+        function raccoonJump(raccoon) {
+            raccoon.animate({ transform: 't100,-270' }, 800, mina.backout, () => {
+                raccoon.animate({ transform: 't100,140' }, 400, mina.bounce)
+            })
+        }
+
     }
 }
 
