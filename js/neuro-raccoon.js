@@ -174,7 +174,7 @@ class NeuroRaccon extends RaccoonElement {
                     if (raccoon.inAnim().length !== 0) {
                         let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
                         if ( intersect ){
-                            raccoon.energy += 60;
+                            raccoon.energy += 50;
                             raccoon.hasFish = true;
                             //text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
                             if ( clouds.attr("fill") !== "red" ){
@@ -260,10 +260,10 @@ class NeuroRaccon extends RaccoonElement {
         function animateCactus2() { cactus.transform('t-1200'); cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus) }
         function animateFish() { fish.animate({ transform: 't1400 s0.3' }, 5000, mina.linear, animateFish2) }
         // function animateFish2() { fish.transform('t-500 s0.3'); fish.animate({ transform: 't500'}, 3000, mina.linear, animateFish) }
-        function animateFish2() {
+        async function animateFish2() {
             fish.transform('t-600 s0.3');
             fish.animate({ transform: 't1400 s0.3'}, 5000, mina.linear, animateFish2);
-            newPopulation();
+            await newPopulation();
         }
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
         function animateMountains2() { mountains.transform('t0'); animateMountains() }
