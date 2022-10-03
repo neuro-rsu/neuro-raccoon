@@ -99,7 +99,12 @@ class NeuroRaccon extends RaccoonElement {
         const night = s.rect(-4, -600, vbW + 10, 600);
         const moon = s.circle(980, 800, 60);
         moon.attr({ fill: "white" });
-        let truck, lights, cactus, mountains, mountainRange, clouds, raccoon, mat1, mat2, fish;
+        let truck, lights, cactus, mountains, mountainRange, clouds, raccoon, raccoonBox, fishBox, fish;
+        let costText;
+        let populationText;
+        //populationText.attr({ fill: 'yellow', "font-size": "40px" });
+        //costText.attr({ fill: 'yellow', "font-size": "40px" });
+        let value = 0;
         //const mystring = data.svg;
         //const blob = new Blob([mystring], { type: 'text/plain' });
         //const objectURL = URL.createObjectURL(blob);
@@ -119,11 +124,16 @@ class NeuroRaccon extends RaccoonElement {
             s.append(clouds);
             s.append(cactus);
 			s.append(fish);
+            costText = s.text(50, 80, '0');
+            populationText = s.text(1060, 80, '0');
+            populationText.attr({ fill: 'yellow', "font-size": "40px" });
+            costText.attr({ fill: 'yellow', "font-size": "40px" });
 
             for (let index = 0; index < raccoons.length; index++) {
                 raccoons[index] = raccoon.clone();
                 raccoons[index].brain = bestRaccoonBrain.clone();
                 raccoons[index].brain.cost = 0;
+                raccoons[index].energy = 100;
                 s.append( raccoons[index] );
                 raccoons[index].transform('t100,136');
             }
@@ -146,36 +156,44 @@ class NeuroRaccon extends RaccoonElement {
             moon.hover(hoverOverMoon, hoverOutMoon);
             moon.mousedown(mouseDownMoon);
             animateAll();
-            let text = s.text(50, 80, '0');
-            let text2 = s.text(1060, 80, '0');
-            text2.attr({ fill: 'yellow', "font-size": "40px" })
+            //text2.attr({ fill: 'yellow', "font-size": "40px" })
             let value = 0;
             let _value = 0;
             let _int = setInterval(() => {
-                mat2 = fish.getBBox();
-                raccoons.forEach(raccoon => {
-                    mat1 = raccoon.getBBox();
-                    let intersect = Snap.path.isBBoxIntersect(mat1, mat2);
-                    if (intersect) {
-                        if (value > _value) {
-                            _value = value;
-                            text2.attr({ text: _value, });
+                value += 1;
+                costText.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
+                fishBox = fish.getBBox();
+                if (clouds.attr("fill") === "red") {
+                    clouds.attr({ fill: "white" });
+                };
+                raccoons.forEach( raccoon => {
+                    if (raccoon.inAnim().length === 0 && raccoon.cost <= 0 || raccoon.hasFish) {
+                        return;
+                    }
+                    raccoonBox = raccoon.getBBox();
+                    if (raccoon.inAnim().length !== 0) {
+                        let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
+                        if ( intersect ){
+                            raccoon.energy += 60;
+                            raccoon.hasFish = true;
+                            //text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
+                            if ( clouds.attr("fill") !== "red" ){
+                                clouds.attr({ fill: "red" });
+                            }
                         }
-                        value = 0;
-                        raccoon.attr({ visibility: "hidden" });
-                        raccoon.brain.cost += 1;
-                        text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
-                        clouds.attr({ fill: "red" });
                     } else {
-                        value += 1;
-                        clouds.attr({ fill: "white" });
-                        text.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
-                        if (randomInteger(0, 2) < 1 ) {
-                            if (raccoon.inAnim().length == 0 && raccoon.attr('visibility') !== "hidden")
+                        const distance = raccoonBox.x - fishBox.x2;
+                        if ( distance >= 0  && raccoon.inAnim().length == 0 ){
+                            const inputs = [[ map( distance, 0, 1200, 0, 1) ]];
+                            const result =  raccoon.brain.feedForward(inputs[0]);
+                            if ( result[1] > result[0] ){
                                 raccoonJump(raccoon);
+                                raccoon.energy -= 10;
+                            }
                         }
                     }
-                })
+                });
+
             }, 100)
             document.addEventListener('keyup', mouseDownTruck);
         }
@@ -188,15 +206,53 @@ class NeuroRaccon extends RaccoonElement {
             animateClouds();
         }
         // Генерация случайного число в диапазоне от min до max включительно
-        function randomInteger(min, max) {
-            return Math.floor(min + Math.random() * (max + 1 - min));
+        function randomInteger( min, max ) {
+            return Math.floor( min + Math.random() * (max + 1 - min) );
         }
-        function newPopulation() {
 
-            raccoons.forEach(raccoon => {
-                raccoon.attr({ visibility: "visible"});
+        function map (n, start1, stop1, start2, stop2 ){
+            return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+        }
+
+        async function newPopulation() {
+            let count = 0;
+            let bestBrain = null;
+            if ( clouds.attr("fill") !== "white" ){
+                clouds.attr({ fill: "white" });
+            }
+            raccoons.forEach( raccoon => {
+                raccoon.hasFish = false;
+                if ( raccoon.attr( "visibility" ) !== "hidden" ){
+                    raccoon.energy -= 40;
+                    raccoon.brain.cost = costText.attr( "text" );
+                    if ( raccoon.energy <= 0 ){
+                        raccoon.attr({ visibility: "hidden" });
+                    }
+                }
+                if ( raccoon.energy <= 0 ){
+                    count++;
+                }
+                if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
+                    bestBrain = raccoon.brain
+                }
             });
 
+            if ( count === settings.populationCount ){
+                const countPopulation = +populationText.attr( "text" );
+
+                populationText.attr( { text: countPopulation + 1} );
+                await changeBestRaccoonBrain( bestBrain );
+                raccoons.forEach( raccoon => {
+                    raccoon.brain = bestRaccoonBrain.clone();
+                    raccoon.brain.cost = 0;
+                    raccoon.energy = 100;
+
+                    if ( Math.random() < 0.75 ){
+                        raccoon.brain.mutate();
+                    }
+                    raccoon.attr({ visibility: "visible" });
+                });
+            }
         }
         function animatetTruck1() { truck.animate({ transform: 't120,10' }, 6000, mina.easeinout, animatetTruck2) }
         function animatetTruck2() { truck.animate({ transform: 't-10,0' }, 6000, mina.easeinout, animatetTruck1) }
@@ -208,7 +264,7 @@ class NeuroRaccon extends RaccoonElement {
             fish.transform('t-600 s0.3');
             fish.animate({ transform: 't1400 s0.3'}, 5000, mina.linear, animateFish2);
             newPopulation();
-         }
+        }
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
         function animateMountains2() { mountains.transform('t0'); animateMountains() }
         function animateMountainRange() { mountainRange.animate({ transform: 't1200' }, 4000, '', animateMountainRange2) }
@@ -238,9 +294,13 @@ class NeuroRaccon extends RaccoonElement {
             clouds.attr({ "fill-opacity": 1 });
             lights.attr({ visibility: "hidden" });
         }
-        function raccoonJump(raccoon) {
-            raccoon.animate({ transform: 't100,-270' }, 800, mina.backout, () => {
-                raccoon.animate({ transform: 't100,140' }, 400, mina.bounce)
+        function raccoonJump( raccoon ){
+            raccoon.animate( { transform: 't100,-270' }, 800, mina.backout, () => {
+                raccoon.animate( { transform: 't100,140' }, 400, mina.bounce, () => {
+                    // if ( raccoon.energy <= 0 ){
+                    //     raccoon.attr( { visibility: "hidden" } );
+                    // }
+                })
             })
         }
 

@@ -27,6 +27,7 @@ export class NeuralNetwork
     }
 
     cost = 0;
+
     clone(){
         const clone = new NeuralNetwork(this.theTopology, true);
         // Set the Sections
@@ -77,7 +78,7 @@ export class NeuralNetwork
     * <param name="mutationAmount">The maximum amount a mutated weight would change.
     * </param>
     */
-    mutate (mutationProbability = 0.05, mutationAmount = 1.0) {
+    mutate (mutationProbability = 0.40, mutationAmount = 1.0) {
         // Mutate each section
         for (let i = 0; i < this.sections.length; i++)
         {
