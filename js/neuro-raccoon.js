@@ -122,8 +122,7 @@ class NeuroRaccon extends RaccoonElement {
             raccoon = data.select("#rGroup");
             fish = data.select("#fGroup");
             s.append(clouds);
-            s.append(cactus);
-			s.append(fish);
+
             costText = s.text(50, 80, '0');
             populationText = s.text(1060, 80, '0');
             populationText.attr({ fill: 'yellow', "font-size": "40px" });
@@ -140,6 +139,8 @@ class NeuroRaccon extends RaccoonElement {
             //s.append(clouds);
             s.append(mountains);
             s.append(mountainRange);
+			s.append(fish);
+            s.append(cactus);
             s.append(truck);
             lights.attr({ visibility: "hidden" });
             //let t = new Snap.Matrix();
