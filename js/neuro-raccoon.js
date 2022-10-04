@@ -157,7 +157,7 @@ class NeuroRaccon extends RaccoonElement {
             moon.mousedown(mouseDownMoon);
             animateAll();
             //text2.attr({ fill: 'yellow', "font-size": "40px" })
-            let value = 0;
+
             let _value = 0;
             let _int = setInterval(() => {
                 value += 1;
@@ -181,6 +181,7 @@ class NeuroRaccon extends RaccoonElement {
                                 clouds.attr({ fill: "red" });
                             }
                         }
+
                     } else {
                         const distance = raccoonBox.x - fishBox.x2;
                         if ( distance >= 0  && raccoon.inAnim().length == 0 ){
@@ -222,14 +223,13 @@ class NeuroRaccon extends RaccoonElement {
             }
             raccoons.forEach( raccoon => {
                 raccoon.hasFish = false;
-                if ( raccoon.attr( "visibility" ) !== "hidden" ){
+                console.log( raccoon.energy );
+                if ( raccoon.energy > 0 ){
                     raccoon.energy -= 40;
                     raccoon.brain.cost = costText.attr( "text" );
-                    if ( raccoon.energy <= 0 ){
-                        raccoon.attr({ visibility: "hidden" });
-                    }
                 }
                 if ( raccoon.energy <= 0 ){
+                    raccoon.attr({ visibility: "hidden" });
                     count++;
                 }
                 if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
@@ -238,7 +238,10 @@ class NeuroRaccon extends RaccoonElement {
             });
 
             if ( count === settings.populationCount ){
+
                 const countPopulation = +populationText.attr( "text" );
+                value = 0;
+                costText.attr( {text: '0'} );
 
                 populationText.attr( { text: countPopulation + 1} );
                 await changeBestRaccoonBrain( bestBrain );

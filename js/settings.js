@@ -12,7 +12,7 @@ export const defaultSettings = {
         name: "Прыжок за рыбой"
     },
     topology: [1,2],
-    populationCount: 10,
+    populationCount: 1,
     crazyFish: {
         distance: {
             min: 100,
