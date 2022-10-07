@@ -42,6 +42,21 @@ class NeuroRaccon extends RaccoonElement {
                 position: relative;
                 display: block;
             }
+            .a {
+                fill: #1d1d1b;
+              }
+        
+              .b {
+                fill: #797979;
+              }
+        
+              .c {
+                fill: #fff;
+              }
+        
+              .d {
+                fill: #484848;
+              }
 
         `;
     }
@@ -123,6 +138,7 @@ class NeuroRaccon extends RaccoonElement {
             clouds = data.select("#clGroup");
             raccoon = data.select("#rGroup");
             fish = data.select("#fGroup");
+            madFish = data.select("#mfGroup");
             s.append(clouds);
 
             costText = s.text(50, 80, '0');
@@ -135,6 +151,7 @@ class NeuroRaccon extends RaccoonElement {
             s.append(mountainRange);
             s.append(cactus);
             s.append(fish);
+            s.append(madFish);
             for (let index = 0; index < raccoons.length; index++) {
                 raccoons[index] = raccoon.clone();
                 raccoons[index].brain = bestRaccoonBrain.clone();

@@ -3,3 +3,18 @@ body {
     background-color: black;
     overflow: hidden;
 }
+.a {
+    fill: #1d1d1b;
+  }
+
+  .b {
+    fill: #797979;
+  }
+
+  .c {
+    fill: #fff;
+  }
+
+  .d {
+    fill: #484848;
+  }
