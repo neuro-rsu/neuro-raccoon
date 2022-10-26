@@ -45,15 +45,15 @@ class NeuroRaccon extends RaccoonElement {
             .a {
                 fill: #1d1d1b;
               }
-        
+
               .b {
                 fill: #797979;
               }
-        
+
               .c {
                 fill: #fff;
               }
-        
+
               .d {
                 fill: #484848;
               }
@@ -114,7 +114,7 @@ class NeuroRaccon extends RaccoonElement {
         const night = s.rect(-4, -600, vbW + 10, 600);
         const moon = s.circle(980, 800, 60);
         moon.attr({ fill: "white" });
-        let truck, lights, cactus, mountains, mountainRange, clouds, raccoon, raccoonBox, fishBox, fish;
+        let truck, lights, cactus, mountains, mountainRange, clouds, raccoon, raccoonBox, fishBox, fish, madFish;
         let costText;
         let populationText;
         let bestCostText;
