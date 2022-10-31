@@ -170,6 +170,7 @@ class NeuroRaccon extends RaccoonElement {
             //cactus.transform(t);
             cactus.transform('t-1200');
 			fish.transform('t-600 s0.3');
+            madFish.transform('t-600,150');
             truck.hover(hoverOverTruck, hoverOutTruck);
             truck.mousedown(mouseDownTruck);
             sun.hover(hoverOverSun, hoverOutSun);
@@ -288,7 +289,14 @@ class NeuroRaccon extends RaccoonElement {
         // function animateFish2() { fish.transform('t-500 s0.3'); fish.animate({ transform: 't500'}, 3000, mina.linear, animateFish) }
         async function animateFish2() {
             fish.transform('t-600 s0.3');
-            fish.animate({ transform: 't1400 s0.3'}, 5000, mina.linear, animateFish2);
+            madFish.transform('t-600,150');
+            const kindFish = randomInteger(0,1);
+            if (kindFish === 1) {
+                fish.animate({ transform: 't1400 s0.3'}, 5000, mina.linear, animateFish2);
+            }
+            else {
+                madFish.animate({ transform: 't1400,150'}, 5000, mina.linear, animateFish2);
+            }
             await newPopulation();
         }
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
