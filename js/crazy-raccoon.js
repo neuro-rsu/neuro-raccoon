@@ -1,10 +1,6 @@
-import { RaccoonElement, html, css } from './lit-raccoon.js';
-import {settings, loadSettings} from './settings.js';
+import { LitElement,  html, css } from 'https://unpkg.com/lit@2.0.0/index.js?module';
 
-import {bestRaccoonBrain, changeBestRaccoonBrain, createBestRaccoonBrain} from './raccoon-brain.js'
-import { NeuralNetwork } from './neuro-net.js';
-
-class NeuroRaccon extends RaccoonElement {
+class CrazyRaccoon extends LitElement {
 
     static get properties() {
         return {
@@ -26,7 +22,7 @@ class NeuroRaccon extends RaccoonElement {
                 -ms-user-select: none;
                 user-select: none;
             }
-			#snappy{
+			#game{
                 background-color: deepskyblue;
                 position: relative;
                 display: block;
@@ -57,7 +53,7 @@ class NeuroRaccon extends RaccoonElement {
 
     render() {
         return html`
-			<svg id='snappy' class='img-responsive' viewBox="0 0 1200 700"></svg>
+			<svg id='game' viewBox="0 0 1200 700"></svg>
         `;
     }
 
@@ -75,23 +71,8 @@ class NeuroRaccon extends RaccoonElement {
         if (e.has('row') || e.has('column')) this.init();
     }
 
-    createPopulation(raccoons) {
-        for (let index = 0; index < raccoons.length; index++) {
-            raccoons[index] = bestRaccoonBrain.clone();
-            raccoons[index].cost = 0;
-        }
-    }
-
     async init() {
-        await loadSettings();
-        await createBestRaccoonBrain();
-
-		// await fetch("images/crazi-raccoon.svg")
-		// .then(response => response.text())
-		// .then(svg => {
-		// 	data.svg = svg;
-		// });
-        const s = Snap(this.shadowRoot.getElementById("snappy")),
+        const s = Snap(this.shadowRoot.getElementById("game")),
             vbW = 1200,
             vbH = 700,
             sun = s.circle(60, 600, 300),
@@ -108,15 +89,9 @@ class NeuroRaccon extends RaccoonElement {
         let populationText;
         let bestCostText;
         let currentPopulation = 0;
-        //populationText.attr({ fill: 'yellow', "font-size": "40px" });
-        //costText.attr({ fill: 'yellow', "font-size": "40px" });
         let value = 0;
-        //const mystring = data.svg;
-        //const blob = new Blob([mystring], { type: 'text/plain' });
-        //const objectURL = URL.createObjectURL(blob);
-        //Snap.load(objectURL, onSVGLoaded);
-        const raccoons = Array(settings.populationCount);
-        Snap.load("images/crazi-raccoon.svg", onSVGLoaded);
+        const raccoons = Array(1);
+        Snap.load("images/crazy-raccoon.svg", onSVGLoaded);
 
         function onSVGLoaded(data) {
             truck = data.select("#tGroup");
@@ -131,7 +106,7 @@ class NeuroRaccon extends RaccoonElement {
             s.append(clouds);
 
             costText = s.text(50, 80, '0');
-            populationText = s.text(550, 80, `0:${settings.populationCount}`);
+            populationText = s.text(550, 80, `0:0`);
             bestCostText = s.text(1060, 80, '0');
             populationText.attr({ fill: 'yellow', "font-size": "40px" });
             costText.attr({ fill: 'yellow', "font-size": "40px" });
@@ -141,22 +116,11 @@ class NeuroRaccon extends RaccoonElement {
             s.append(cactus);
             s.append(fish);
             s.append(madFish);
-            for (let index = 0; index < raccoons.length; index++) {
-                raccoons[index] = raccoon.clone();
-                raccoons[index].brain = bestRaccoonBrain.clone();
-                raccoons[index].brain.cost = 0;
-                raccoons[index].energy = 100;
-                s.append( raccoons[index] );
-                raccoons[index].transform('t100,136');
-            }
-            //s.append(clouds);
+            s.append(raccoon);
+            raccoon.transform('t100,136');
             s.append(truck);
             lights.attr({ visibility: "hidden" });
-            //let t = new Snap.Matrix();
-            //t.translate(-1200, 0);
             truck.transform('t60');
-            //raccoon.transform('t100,136');
-            //cactus.transform(t);
             cactus.transform('t-1200');
 			fish.transform('t-600,100');
             madFish.transform('t-600,150');
@@ -167,7 +131,6 @@ class NeuroRaccon extends RaccoonElement {
             moon.hover(hoverOverMoon, hoverOutMoon);
             moon.mousedown(mouseDownMoon);
             animateAll();
-            //text2.attr({ fill: 'yellow', "font-size": "40px" })
 
             let _value = 0;
             let _int = setInterval(() => {
@@ -177,35 +140,21 @@ class NeuroRaccon extends RaccoonElement {
                 if (clouds.attr("fill") === "red") {
                     clouds.attr({ fill: "white" });
                 };
-                raccoons.forEach( raccoon => {
-                    if (raccoon.inAnim().length === 0 && raccoon.energy <= 0 || raccoon.hasFish) {
-                        return;
-                    }
-                    raccoonBox = raccoon.getBBox();
-                    if (raccoon.inAnim().length !== 0) {
-                        let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
-                        if ( intersect ){
-                            raccoon.energy += 50;
-                            raccoon.hasFish = true;
-                            //text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
-                            if ( clouds.attr("fill") !== "red" ){
-                                clouds.attr({ fill: "red" });
-                            }
-                        }
 
-                    } else {
-                        const distance = raccoonBox.x - fishBox.x2;
-                        if ( distance >= 0  && raccoon.inAnim().length == 0 ){
-                            const inputs = [[ map( distance, 0, 1200, 0, 1) ]];
-                            const result =  raccoon.brain.feedForward(inputs[0]);
-                            if ( result[1] > result[0] ){
-                                raccoonJump(raccoon);
-                                raccoon.energy -= 10;
-                            }
+                if (raccoon.inAnim().length === 0 && raccoon.energy <= 0 || raccoon.hasFish) {
+                    return;
+                }
+                raccoonBox = raccoon.getBBox();
+                if (raccoon.inAnim().length !== 0) {
+                    let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
+                    if ( intersect ){
+                        raccoon.energy += 50;
+                        raccoon.hasFish = true;
+                        if ( clouds.attr("fill") !== "red" ){
+                            clouds.attr({ fill: "red" });
                         }
                     }
-                });
-
+                }
             }, 100)
             document.addEventListener('keyup', mouseDownTruck);
         }
@@ -217,77 +166,15 @@ class NeuroRaccon extends RaccoonElement {
             animateMountainRange();
             animateClouds();
         }
-        // Генерация случайного число в диапазоне от min до max включительно
-        function randomInteger( min, max ) {
-            return Math.floor( min + Math.random() * (max + 1 - min) );
-        }
 
-        function map (n, start1, stop1, start2, stop2 ){
-            return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
-        }
 
-        async function newPopulation() {
-            let count = 0;
-            let bestBrain = null;
-            if ( clouds.attr("fill") !== "white" ){
-                clouds.attr({ fill: "white" });
-            }
-            raccoons.forEach( raccoon => {
-                raccoon.hasFish = false;
-                if ( raccoon.energy > 0 ){
-                    raccoon.energy -= 40;
-                    raccoon.brain.cost = costText.attr( "text" );
-                }
-                if ( raccoon.energy <= 0 ){
-                    raccoon.attr({ visibility: "hidden" });
-                    count++;
-                    populationText.attr( { text: `${currentPopulation}:${settings.populationCount - count}` });
-                }
-                if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
-                    bestBrain = raccoon.brain
-                }
-                console.log( raccoon.energy );
-            });
 
-            if ( count === settings.populationCount ){
-                currentPopulation++;
-                value = 0;
-                costText.attr( {text: '0'} );
-                if ( bestBrain?.cost > bestRaccoonBrain.cost ){
-                    bestCostText.attr({text: bestBrain?.cost});
-                }
-                populationText.attr( { text: `${currentPopulation}:${settings.populationCount}`});
-                await changeBestRaccoonBrain( bestBrain );
-                raccoons.forEach( raccoon => {
-                    raccoon.brain = bestRaccoonBrain.clone();
-                    raccoon.brain.cost = 0;
-                    raccoon.energy = 100;
-
-                    if ( Math.random() < 0.75 ){
-                        raccoon.brain.mutate();
-                    }
-                    raccoon.attr({ visibility: "visible" });
-                });
-            }
-        }
         function animatetTruck1() { truck.animate({ transform: 't120,10' }, 6000, mina.easeinout, animatetTruck2) }
         function animatetTruck2() { truck.animate({ transform: 't-10,0' }, 6000, mina.easeinout, animatetTruck1) }
         function animateCactus() { cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus2) }
         function animateCactus2() { cactus.transform('t-1200'); cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus) }
-        function animateFish() { fish.animate({ transform: 't1400' }, 5000, mina.linear, animateFish2) }
-        // function animateFish2() { fish.transform('t-500 s0.3'); fish.animate({ transform: 't500'}, 3000, mina.linear, animateFish) }
-        async function animateFish2() {
-            fish.transform('t-600,100');
-            madFish.transform('t-600,150');
-            const kindFish = randomInteger(0,1);
-            if (kindFish === 1) {
-                fish.animate({ transform: 't1400,100' }, 5000, mina.linear, animateFish2);
-            }
-            else {
-                madFish.animate({ transform: 't1400,150'}, 5000, mina.linear, animateFish2);
-            }
-            await newPopulation();
-        }
+        function animateFish() { fish.animate({ transform: 't1400,100' }, 5000, mina.linear, animateFish2) }
+        function animateFish2() { fish.transform('t-600,100'); fish.animate({ transform: 't1400,100'}, 5000, mina.linear, animateFish2) }
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
         function animateMountains2() { mountains.transform('t0'); animateMountains() }
         function animateMountainRange() { mountainRange.animate({ transform: 't1200' }, 4000, '', animateMountainRange2) }
@@ -332,4 +219,4 @@ class NeuroRaccon extends RaccoonElement {
 
 const data = {};
 
-customElements.define("neuro-raccoon", NeuroRaccon);
+customElements.define("crazy-raccoon", CrazyRaccoon);

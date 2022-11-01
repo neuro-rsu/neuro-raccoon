@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Мой fetch">
+    <title>Мои опыты</title>
+    <script type="module">
+        let names1 = ['iliakan','iliakan1qq2'];
+        async function getUsers(names) {
+            //const a = await fetch(`https://api1.github.com/users/iliakan`).then(response => 1);
+            //console.log(a);
+            return await Promise.all(names.map(name => fetch(`https://api.github.com/users/${name}`).then(response => response.ok ? response.json() : null, reject => null)));
+            console.log(logins);
+            //fetch(`https://api.github.com/users/iliakan`).then(response => response.json() ).then(value => console.log(value));
+        }
+        const login = await getUsers(names1);
+        console.log(login);
+
+//   let jobs = [];
+//   let names = ['iliakan','iliakan1qq2'];
+//   for(let name of names) {
+//     let job = fetch(`https://api55.github.com/users/${name}`).then(
+//       successResponse => {
+//         if (successResponse.status != 200) {
+//           return null;
+//         } else {
+//           return successResponse.json();
+//         }
+//       },
+//       failResponse => {
+//         return null;
+//       }
+//     );
+//     jobs.push(job);
+//   }
+
+//   let results = await Promise.all(jobs);
+//   console.log(results)
+
+
+
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
