@@ -197,6 +197,9 @@ class CrazyRaccoon extends LitElement {
         let timeText, pointsText;
         let bestPointsText;
         let value = 0;
+        let isFish = false;
+        let caughtFish = 0;
+        let missedFish = 0;
 
         Snap.load("images/crazy-raccoon.svg", onSVGLoaded);
 
@@ -209,12 +212,7 @@ class CrazyRaccoon extends LitElement {
             clouds = data.select("#clGroup");
             raccoon = data.select("#rGroup");
             fish = data.select("#fGroup");
-            timeText = s.text(50, 80, '0');
-            pointsText = s.text(550, 80, `0:0`);
-            bestPointsText = s.text(1060, 80, '0');
-            timeText.attr({ fill: 'yellow', "font-size": "40px" });
-            pointsText.attr({ fill: 'yellow', "font-size": "40px" });
-            bestPointsText.attr({ fill: 'yellow', "font-size": "40px" });
+
             s.append(mountains);
             s.append(mountainRange);
             s.append(cactus);
@@ -222,11 +220,19 @@ class CrazyRaccoon extends LitElement {
             s.append(fish);
             s.append(raccoon);
             s.append(truck);
+
+            timeText = s.text(50, 80, '0');
+            pointsText = s.text(550, 80, `0:0`);
+            bestPointsText = s.text(1060, 80, '0');
+            timeText.attr({ fill: 'yellow', "font-size": "40px" });
+            pointsText.attr({ fill: 'yellow', "font-size": "40px" });
+            bestPointsText.attr({ fill: 'yellow', "font-size": "40px" });
+
             raccoon.transform('t100,136');
             lights.attr({ visibility: "hidden" });
             truck.transform('t60');
             cactus.transform('t-1200');
-			fish.transform('t-600,100');
+			fish.transform('t-600');
             //madFish.transform('t-600,150');
             truck.hover(hoverOverTruck, hoverOutTruck);
             truck.mousedown(mouseDownTruck);
@@ -236,31 +242,24 @@ class CrazyRaccoon extends LitElement {
             moon.mousedown(mouseDownMoon);
             animateAll();
 
-            let _value = 0;
-            let _int = setInterval(() => {
-                value += 1;
-                costText.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
+            let gameTime = 0;
+            let intervalID = setInterval(() => {
+                gameTime += 1;
+                timeText.attr({ text: Math.round(gameTime), fill: 'yellow', "font-size": "40px" });
                 fishBox = fish.getBBox();
-                if (clouds.attr("fill") === "red") {
-                    clouds.attr({ fill: "white" });
-                };
-
-                if (raccoon.inAnim().length === 0 && raccoon.energy <= 0 || raccoon.hasFish) {
-                    return;
-                }
                 raccoonBox = raccoon.getBBox();
                 if (raccoon.inAnim().length !== 0) {
                     let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
-                    if ( intersect ){
-                        raccoon.energy += 50;
-                        raccoon.hasFish = true;
-                        if ( clouds.attr("fill") !== "red" ){
-                            clouds.attr({ fill: "red" });
-                        }
+                    if ( intersect && !isFish){
+                        isFish = true;
+                        caughtFish++;
+                        pointsText.attr( { text: `${caughtFish}:${missedFish}` });
                     }
                 }
             }, 100)
-            document.addEventListener('keyup', mouseDownTruck);
+
+
+            document.addEventListener('keydown', mouseDownTruck);
         }
         function animateAll() {
             animatetTruck1();
@@ -277,8 +276,8 @@ class CrazyRaccoon extends LitElement {
         function animatetTruck2() { truck.animate({ transform: 't-10,0' }, 6000, mina.easeinout, animatetTruck1) }
         function animateCactus() { cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus2) }
         function animateCactus2() { cactus.transform('t-1200'); cactus.animate({ transform: 't1300' }, 4000, mina.linear, animateCactus) }
-        function animateFish() { fish.animate({ transform: 't1400,100' }, 5000, mina.linear, animateFish2) }
-        function animateFish2() { fish.transform('t-600,100'); fish.animate({ transform: 't1400,100'}, 5000, mina.linear, animateFish2) }
+        function animateFish() { fish.animate({ transform: 't1400' }, 5000, mina.linear, animateFish2) }
+        function animateFish2() { fish.transform('t-600'); fish.animate({ transform: 't1400'}, 5000, mina.linear, animateFish2); if (!isFish) { missedFish++; pointsText.attr( { text: `${caughtFish}:${missedFish}` }) }; isFish = false;}
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
         function animateMountains2() { mountains.transform('t0'); animateMountains() }
         function animateMountainRange() { mountainRange.animate({ transform: 't1200' }, 4000, '', animateMountainRange2) }
@@ -286,7 +285,7 @@ class CrazyRaccoon extends LitElement {
         function animateClouds() { clouds.animate({ transform: 't1200' }, 30000, '', animateClouds2) }
         function animateClouds2() { clouds.transform('t0'); animateClouds() }
         function animateCoon() { raccoon.animate({ transform: 't100,-270' }, 800, mina.backout, animateCoon2) }
-        function animateCoon2() { raccoon.animate({ transform: 't100,136' }, 400, mina.bounce) }
+        function animateCoon2() { raccoon.animate({ transform: 't100,136' }, 400, mina.bounce);  }
         function hoverOverTruck() { document.body.style.cursor = "pointer" }
         function hoverOutTruck() { document.body.style.cursor = "default" }
         function mouseDownTruck() { animateCoon() }
