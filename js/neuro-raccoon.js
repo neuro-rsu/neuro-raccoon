@@ -86,7 +86,7 @@ class NeuroRaccon extends RaccoonElement {
         await loadSettings();
         await createBestRaccoonBrain();
 
-		// await fetch("images/crazi-raccoon.svg")
+		// await fetch("images/crazy-raccoon.svg")
 		// .then(response => response.text())
 		// .then(svg => {
 		// 	data.svg = svg;
