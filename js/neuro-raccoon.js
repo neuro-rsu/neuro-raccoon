@@ -111,6 +111,7 @@ class NeuroRaccon extends RaccoonElement {
         //populationText.attr({ fill: 'yellow', "font-size": "40px" });
         //costText.attr({ fill: 'yellow', "font-size": "40px" });
         let value = 0;
+        let kindFish = 1;
         //const mystring = data.svg;
         //const blob = new Blob([mystring], { type: 'text/plain' });
         //const objectURL = URL.createObjectURL(blob);
@@ -173,7 +174,7 @@ class NeuroRaccon extends RaccoonElement {
             let _int = setInterval(() => {
                 value += 1;
                 costText.attr({ text: Math.round(value), fill: 'yellow', "font-size": "40px" });
-                fishBox = fish.getBBox();
+                fishBox = kindFish ? fish.getBBox() : madFish.getBBox();
                 if (clouds.attr("fill") === "red") {
                     clouds.attr({ fill: "white" });
                 };
@@ -185,7 +186,7 @@ class NeuroRaccon extends RaccoonElement {
                     if (raccoon.inAnim().length !== 0) {
                         let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
                         if ( intersect ){
-                            raccoon.energy += 50;
+                            raccoon.energy += kindFish ? 50 : -100;
                             raccoon.hasFish = true;
                             //text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
                             if ( clouds.attr("fill") !== "red" ){
@@ -196,7 +197,7 @@ class NeuroRaccon extends RaccoonElement {
                     } else {
                         const distance = raccoonBox.x - fishBox.x2;
                         if ( distance >= 0  && raccoon.inAnim().length == 0 ){
-                            const inputs = [[ map( distance, 0, 1200, 0, 1) ]];
+                            const inputs = [[ map( distance, 0, 1200, 0, 1), kindFish ]];
                             const result =  raccoon.brain.feedForward(inputs[0]);
                             if ( result[1] > result[0] ){
                                 raccoonJump(raccoon);
@@ -235,8 +236,8 @@ class NeuroRaccon extends RaccoonElement {
             raccoons.forEach( raccoon => {
                 raccoon.hasFish = false;
                 if ( raccoon.energy > 0 ){
-                    raccoon.energy -= 40;
-                    raccoon.brain.cost = costText.attr( "text" );
+                    raccoon.energy -= kindFish ? 40 : 0;
+                    raccoon.brain.cost = +costText.attr( "text" );
                 }
                 if ( raccoon.energy <= 0 ){
                     raccoon.attr({ visibility: "hidden" });
@@ -277,16 +278,16 @@ class NeuroRaccon extends RaccoonElement {
         function animateFish() { fish.animate({ transform: 't1400' }, 5000, mina.linear, animateFish2) }
         // function animateFish2() { fish.transform('t-500 s0.3'); fish.animate({ transform: 't500'}, 3000, mina.linear, animateFish) }
         async function animateFish2() {
+            await newPopulation();
             fish.transform('t-600,100');
             madFish.transform('t-600,150');
-            const kindFish = randomInteger(0,1);
+            kindFish = kindFish ? 0 : 1; //randomInteger(0,1);
             if (kindFish === 1) {
                 fish.animate({ transform: 't1400,100' }, 5000, mina.linear, animateFish2);
             }
             else {
                 madFish.animate({ transform: 't1400,150'}, 5000, mina.linear, animateFish2);
             }
-            await newPopulation();
         }
         function animateMountains() { mountains.animate({ transform: 't1200' }, 8000, '', animateMountains2) }
         function animateMountains2() { mountains.transform('t0'); animateMountains() }
