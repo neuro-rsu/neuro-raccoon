@@ -116,7 +116,7 @@ class NeuroRaccon extends RaccoonElement {
         //const objectURL = URL.createObjectURL(blob);
         //Snap.load(objectURL, onSVGLoaded);
         const raccoons = Array(settings.populationCount);
-        Snap.load("images/crazi-raccoon.svg", onSVGLoaded);
+        Snap.load("images/crazy-raccoon.svg", onSVGLoaded);
 
         function onSVGLoaded(data) {
             truck = data.select("#tGroup");
