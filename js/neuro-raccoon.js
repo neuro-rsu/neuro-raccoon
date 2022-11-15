@@ -118,7 +118,17 @@ class NeuroRaccon extends RaccoonElement {
         //Snap.load(objectURL, onSVGLoaded);
         const raccoons = Array(settings.populationCount);
         Snap.load("images/crazy-raccoon.svg", onSVGLoaded);
-
+        let countDeadRaccoon = 0;
+        let bestBrain = null;
+        function dead(raccoon) {
+            raccoon.brain.cost = +costText.attr( "text" );
+            if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
+                bestBrain = raccoon.brain
+            }
+            countDeadRaccoon++;
+            populationText.attr( { text: `${currentPopulation}:${settings.populationCount - countDeadRaccoon}` });
+            raccoon.attr({ visibility: "hidden" });
+        }
         function onSVGLoaded(data) {
             truck = data.select("#tGroup");
             lights = data.select("#lights");
@@ -179,14 +189,15 @@ class NeuroRaccon extends RaccoonElement {
                     clouds.attr({ fill: "white" });
                 };
                 raccoons.forEach( raccoon => {
-                    if (raccoon.inAnim().length === 0 && raccoon.energy <= 0 || raccoon.hasFish) {
+                    if (raccoon.inAnim().length === 0 && raccoon.energy <= 0 || raccoon.hasFish)
                         return;
-                    }
                     raccoonBox = raccoon.getBBox();
                     if (raccoon.inAnim().length !== 0) {
                         let intersect = Snap.path.isBBoxIntersect(raccoonBox, fishBox);
                         if ( intersect ){
                             raccoon.energy += kindFish ? 50 : -100;
+                            if (raccoon.energy <= 0)
+                                dead(raccoon);
                             raccoon.hasFish = true;
                             //text.attr({ text: '0', fill: 'yellow',  "font-size": "80px" });
                             if ( clouds.attr("fill") !== "red" ){
@@ -196,7 +207,7 @@ class NeuroRaccon extends RaccoonElement {
 
                     } else {
                         const distance = raccoonBox.x - fishBox.x2;
-                        if ( distance >= 0  && raccoon.inAnim().length == 0 ){
+                        if ( distance >= 0 ){
                             const inputs = [[ map( distance, 0, 1200, 0, 1), kindFish ]];
                             const result =  raccoon.brain.feedForward(inputs[0]);
                             if ( result[1] > result[0] ){
@@ -228,29 +239,37 @@ class NeuroRaccon extends RaccoonElement {
         }
 
         async function newPopulation() {
-            let count = 0;
-            let bestBrain = null;
+            // let count = 0;
+            // let bestBrain = null;
             if ( clouds.attr("fill") !== "white" ){
                 clouds.attr({ fill: "white" });
             }
             raccoons.forEach( raccoon => {
+                if (raccoon.attr("visibility") === "hidden")
+                    return;
                 raccoon.hasFish = false;
-                if ( raccoon.energy > 0 ){
-                    raccoon.energy -= kindFish ? 40 : 0;
-                    raccoon.brain.cost = +costText.attr( "text" );
-                }
-                if ( raccoon.energy <= 0 ){
-                    raccoon.attr({ visibility: "hidden" });
-                    count++;
-                    populationText.attr( { text: `${currentPopulation}:${settings.populationCount - count}` });
-                }
-                if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
-                    bestBrain = raccoon.brain
-                }
+                raccoon.energy -= kindFish ? 40 : 0;
+                if (raccoon.energy <= 0)
+                    dead(raccoon);
                 console.log( raccoon.energy );
+                // if ( raccoon.energy > 0 ){
+                //     raccoon.energy -= kindFish ? 40 : 0;
+                //     if (raccoon.energy <= 0)
+                //     dead(raccoon);
+                // }
+                // if ( raccoon.energy <= 0 ){
+                //     raccoon.attr({ visibility: "hidden" });
+                //     raccoon.brain.cost = +costText.attr( "text" );
+                //     count++;
+                //     populationText.attr( { text: `${currentPopulation}:${settings.populationCount - count}` });
+                // }
+                // if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
+                //     bestBrain = raccoon.brain
+                // }
+                //console.log( raccoon.energy );
             });
 
-            if ( count === settings.populationCount ){
+            if ( countDeadRaccoon === settings.populationCount ){
                 currentPopulation++;
                 value = 0;
                 costText.attr( {text: '0'} );
@@ -269,6 +288,8 @@ class NeuroRaccon extends RaccoonElement {
                     }
                     raccoon.attr({ visibility: "visible" });
                 });
+                countDeadRaccoon = 0;
+                bestBrain = null;
             }
         }
         function animatetTruck1() { truck.animate({ transform: 't120,10' }, 6000, mina.easeinout, animatetTruck2) }
@@ -321,9 +342,9 @@ class NeuroRaccon extends RaccoonElement {
         function raccoonJump( raccoon ){
             raccoon.animate( { transform: 't100,-270' }, 800, mina.backout, () => {
                 raccoon.animate( { transform: 't100,140' }, 400, mina.bounce, () => {
-                    // if ( raccoon.energy <= 0 ){
-                    //     raccoon.attr( { visibility: "hidden" } );
-                    // }
+                    if ( raccoon.energy <= 0 && raccoon.attr("visibility") !== "hidden") {
+                        dead(raccoon);
+                    }
                 })
             })
         }
