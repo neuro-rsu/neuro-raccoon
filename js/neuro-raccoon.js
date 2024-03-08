@@ -251,22 +251,6 @@ class NeuroRaccon extends RaccoonElement {
                 raccoon.energy -= kindFish ? 40 : 0;
                 if (raccoon.energy <= 0)
                     dead(raccoon);
-                console.log( raccoon.energy );
-                // if ( raccoon.energy > 0 ){
-                //     raccoon.energy -= kindFish ? 40 : 0;
-                //     if (raccoon.energy <= 0)
-                //     dead(raccoon);
-                // }
-                // if ( raccoon.energy <= 0 ){
-                //     raccoon.attr({ visibility: "hidden" });
-                //     raccoon.brain.cost = +costText.attr( "text" );
-                //     count++;
-                //     populationText.attr( { text: `${currentPopulation}:${settings.populationCount - count}` });
-                // }
-                // if ( bestBrain == null || raccoon.brain.cost > bestBrain.cost ){
-                //     bestBrain = raccoon.brain
-                // }
-                //console.log( raccoon.energy );
             });
 
             if ( countDeadRaccoon === settings.populationCount ){
