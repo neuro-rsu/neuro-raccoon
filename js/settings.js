@@ -1,4 +1,4 @@
-const pdb = new PouchDB('settings');
+const pdb = new PouchDB('raccoon-settings');
 
 export let settings;
 
@@ -49,9 +49,9 @@ export async function loadSettings() {
 }
 
 export async function get() {
-    await pdb.get(getSettingsID).then(function (settingsDB) {
-        settings = settingsDB;
-    }).catch(function (err) {
+    await pdb.get(getSettingsID()).then(settingsDB =>
+        settings = settingsDB
+    ).catch(function (err) {
         create();
     });
 }
@@ -61,24 +61,23 @@ export function copyDefault() {
 }
 
 export async function save() {
-    await pdb.put(settings).then( settingsDB => {
-        settings._rev = settingsDB.rev;
-    }).catch( err => {
+    await pdb.put(settings).then( settingsDB =>
+        settings._rev = settingsDB.rev
+    ).catch( err => {
         console.log(`Can't create settings: ${err}`);
     });
 }
 
 function getSettingsID() {
-    return `{settings.lesson.number.toString()}.{settings.topic.number.toString()}:{settings.topology.join('-')}.{settings.populationCount.toString()}`;
+    return `${settings.lesson.number.toString()}.${settings.topic.number.toString()}:${settings.topology.join('-')}.${settings.populationCount.toString()}`;
 }
 
 export async function create() {
-    settings = JSON.parse(JSON.stringify(defaultSettings));
+    settings = structuredClone(defaultSettings);
     settings._id = getSettingsID();
-
-    await pdb.put(settings).then( settingsDB => {
-        settings._rev = settingsDB.rev;
-    }).catch( err => {
+    await pdb.put(settings).then( settingsDB =>
+        settings._rev = settingsDB.rev
+    ).catch( err => {
         console.log(`Can't create settings: ${err}`);
     });
 }

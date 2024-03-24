@@ -2,9 +2,8 @@ import { RaccoonElement, html, css } from './lit-raccoon.js';
 import {settings, loadSettings} from './settings.js';
 
 import {bestRaccoonBrain, changeBestRaccoonBrain, createBestRaccoonBrain} from './raccoon-brain.js'
-import { NeuralNetwork } from './neuro-net.js';
 
-class NeuroRaccon extends RaccoonElement {
+class NeuroRaccoon extends RaccoonElement {
 
     static get properties() {
         return {
@@ -63,16 +62,7 @@ class NeuroRaccon extends RaccoonElement {
 
     firstUpdated() {
         super.firstUpdated();
-        setTimeout(() => this.init(), 100);
-        //window.addEventListener('resize', () => FLIP.throttle('resize', () => this.fontSize = this._fontSize, 300), false);
-    }
-
-    updated(e) {
-        if (e.has('row') || e.has('column')) {
-            this.row = this.row < 2 ? 2 : this.row > 10 ? 10 : this.row;
-            this.column = this.column < 2 ? 2 : this.column > 10 ? 10 : this.column;
-        }
-        if (e.has('row') || e.has('column')) this.init();
+        this.init();
     }
 
     createPopulation(raccoons) {
@@ -86,11 +76,6 @@ class NeuroRaccon extends RaccoonElement {
         await loadSettings();
         await createBestRaccoonBrain();
 
-		// await fetch("images/crazy-raccoon.svg")
-		// .then(response => response.text())
-		// .then(svg => {
-		// 	data.svg = svg;
-		// });
         const s = Snap(this.shadowRoot.getElementById("snappy")),
             vbW = 1200,
             vbH = 700,
@@ -156,7 +141,7 @@ class NeuroRaccon extends RaccoonElement {
                 raccoons[index] = raccoon.clone();
                 raccoons[index].brain = bestRaccoonBrain.clone();
                 raccoons[index].brain.cost = 0;
-                raccoons[index].energy = 100;
+                raccoons[index].energy = 60;
                 s.append( raccoons[index] );
                 raccoons[index].transform('t100,136');
             }
@@ -218,7 +203,7 @@ class NeuroRaccon extends RaccoonElement {
                     }
                 });
 
-            }, 100)
+            }, 10)
             document.addEventListener('keyup', mouseDownTruck);
         }
         function animateAll() {
@@ -265,15 +250,14 @@ class NeuroRaccon extends RaccoonElement {
                 raccoons.forEach( raccoon => {
                     raccoon.brain = bestRaccoonBrain.clone();
                     raccoon.brain.cost = 0;
-                    raccoon.energy = 100;
-
-                    if ( Math.random() < 0.75 ){
-                        raccoon.brain.mutate();
-                    }
+                    raccoon.energy = 60;
+                    raccoon.hasFish = false;
+                    raccoon.brain.mutate();
                     raccoon.attr({ visibility: "visible" });
                 });
                 countDeadRaccoon = 0;
                 bestBrain = null;
+                kindFish = false;
             }
         }
         function animatetTruck1() { truck.animate({ transform: 't120,10' }, 6000, mina.easeinout, animatetTruck2) }
@@ -338,4 +322,4 @@ class NeuroRaccon extends RaccoonElement {
 
 const data = {};
 
-customElements.define("neuro-raccoon", NeuroRaccon);
+customElements.define("neuro-raccoon", NeuroRaccoon);

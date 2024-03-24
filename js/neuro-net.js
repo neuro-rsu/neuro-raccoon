@@ -78,7 +78,7 @@ export class NeuralNetwork
     * <param name="mutationAmount">The maximum amount a mutated weight would change.
     * </param>
     */
-    mutate (mutationProbability = 0.40, mutationAmount = 1.0) {
+    mutate (mutationProbability = 0.50, mutationAmount = 0.1) {
         // Mutate each section
         for (let i = 0; i < this.sections.length; i++)
         {

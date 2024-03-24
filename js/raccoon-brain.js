@@ -11,17 +11,17 @@ export async function createBestRaccoonBrain() {
     bestRaccoonBrain = new NeuralNetwork(settings.topology);
     bestRaccoonBrain.cost = -Infinity;
 
-    await pdb.get(settings.topology.join('-')).then(function (bestRaccoonBrainDB) {
-        bestRaccoonBrain.sections.forEach((item, index) => item.weights = bestRaccoonBrainDB.sections[index].weights);
-        bestRaccoonBrain.cost = bestRaccoonBrainDB.cost;
-        // console.log(bestRaccoonBrainDB);
-    }).catch(function (err) {
-        // console.log(err);
-        bestRaccoonBrain._id = settings.topology.join('-');
-        return pdb.put(bestRaccoonBrain);
-    }).catch( err => {
-        console.log(`Can't add bestRaccoonBrain ${err}`);
-    });
+    // await pdb.get(settings.topology.join('-')).then(function (bestRaccoonBrainDB) {
+    //     bestRaccoonBrain.sections.forEach((item, index) => item.weights = bestRaccoonBrainDB.sections[index].weights);
+    //     bestRaccoonBrain.cost = bestRaccoonBrainDB.cost;
+    //     // console.log(bestRaccoonBrainDB);
+    // }).catch(function (err) {
+    //     // console.log(err);
+    //     bestRaccoonBrain._id = settings.topology.join('-');
+    //     return pdb.put(bestRaccoonBrain);
+    // }).catch( err => {
+    //     console.log(`Can't add bestRaccoonBrain ${err}`);
+    // });
 }
 
 export async function clearBestRaccoonBrain() {
